@@ -8,48 +8,40 @@ class GildedRose
   end
 
   def tick
-    if @name != "Aged Brie" and @name != "Backstage passes to a TAFKAL80ETC concert"
-      if @quality > 0
-        if @name != "Sulfuras, Hand of Ragnaros"
-          @quality = @quality - 1
-        end
-      end
+    update_quality
+    update_days_remaining unless sulfuras?
+  end
+
+  private
+
+  def update_quality
+    return if sulfuras?
+
+    case @name
+    when "Aged Brie"
+      increase_quality
+    when "Backstage passes to a TAFKAL80ETC concert"
+      increase_quality
+      increase_quality if @days_remaining < 11
+      increase_quality if @days_remaining < 6
     else
-      if @quality < 50
-        @quality = @quality + 1
-        if @name == "Backstage passes to a TAFKAL80ETC concert"
-          if @days_remaining < 11
-            if @quality < 50
-              @quality = @quality + 1
-            end
-          end
-          if @days_remaining < 6
-            if @quality < 50
-              @quality = @quality + 1
-            end
-          end
-        end
-      end
+      decrease_quality
     end
-    if @name != "Sulfuras, Hand of Ragnaros"
-      @days_remaining = @days_remaining - 1
-    end
-    if @days_remaining < 0
-      if @name != "Aged Brie"
-        if @name != "Backstage passes to a TAFKAL80ETC concert"
-          if @quality > 0
-            if @name != "Sulfuras, Hand of Ragnaros"
-              @quality = @quality - 1
-            end
-          end
-        else
-          @quality = @quality - @quality
-        end
-      else
-        if @quality < 50
-          @quality = @quality + 1
-        end
-      end
-    end
+  end
+
+  def update_days_remaining
+    @days_remaining -= 1
+  end
+
+  def sulfuras?
+    @name == "Sulfuras, Hand of Ragnaros"
+  end
+
+  def increase_quality
+    @quality = [@quality + 1, 50].min
+  end
+
+  def decrease_quality
+    @quality -= 1 if @quality.positive?
   end
 end
